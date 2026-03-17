@@ -73,9 +73,15 @@ export default function Notifications() {
 
   const filtered = notifications.filter(n => {
     if (filter === "unread") return !n.is_read;
-    if (filter === "approval") return n.event_type?.includes("APPROVAL");
-    if (filter === "notification") return n.event_type === "NOTIFICATION_SENT";
-    if (filter === "failed") return n.event_type?.includes("FAILED");
+    if (filter === "approval")
+    return n.event_type === "APPROVAL_APPROVED";
+
+  if (filter === "failed")
+    return (
+      n.event_type === "STEP_FAILED" ||
+      n.event_type === "WORKFLOW_FAILED" ||
+      n.event_type === "APPROVAL_REJECTED"
+    );
     if (filter === "completed") return n.event_type?.includes("COMPLETED");
     return true;
   });
@@ -123,8 +129,6 @@ export default function Notifications() {
           { key: "all", label: "All" },
           { key: "unread", label: `Unread${unread > 0 ? ` (${unread})` : ""}` },
           { key: "approval", label: "Approvals" },
-          { key: "notification", label: "Notifications" },
-          { key: "completed", label: "Completed" },
           { key: "failed", label: "Failures" },
         ].map(tab => (
           <button
