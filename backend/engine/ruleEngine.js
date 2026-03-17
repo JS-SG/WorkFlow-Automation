@@ -1,5 +1,13 @@
+/**
+ * Rule Engine
+ * Evaluates workflow rule conditions using execution data
+ */
+
 function evaluateRule(condition, data = {}) {
   if (!condition || condition.trim() === "") return false;
+   if (condition.trim().toUpperCase() === "DEFAULT") {
+    return true;
+  }
 
   try {
     // Create variables from data keys
