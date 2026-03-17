@@ -10,7 +10,7 @@ Built using **React (Vite), Node.js, Express, SQLite3**, and **Resend API** for 
 # 🌐 Live Demo
 
 **Application:**
-[https://workflow-agent-pi.vercel.app/login](https://workflow-agent-pi.vercel.app/login)
+https://workflow-agent-pi.vercel.app/login
 
 **Demo Video:**
 [https://drive.google.com/file/d/1nK-4v5UvcW2AllbU5w2l9Kw1tFCU5EKp/view?usp=sharing](https://drive.google.com/file/d/1nK-4v5UvcW2AllbU5w2l9Kw1tFCU5EKp/view?usp=sharing)
@@ -272,8 +272,4 @@ workflow-automation
 └── notifications
     └── Resend email integration
 ```
-
 ---
-
-
-If you want, I can also give you a **🔥 more impressive GitHub README version (with badges, diagrams, architecture, and screenshots)** that makes the project look **much stronger for recruiters and GitHub viewers**.
