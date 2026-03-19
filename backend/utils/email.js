@@ -24,7 +24,7 @@ const sendEmail = async (to, subject, message) => {
   }
 
   try {
-    const dashboardUrl = `${import.meta.env.VITE_API_URL}/notifications`;
+    const dashboardUrl = `${process.env.FRONTEND_URL}/notifications`;
     const htmlContent = `
       <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; borderRadius: 8px;">
         <h2 style="color: #6366f1;">Workflow Notification</h2>
