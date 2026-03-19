@@ -25,6 +25,9 @@ console.log("Notifications route imported");
 app.use("/notifications", notifications);
 
 app.get("/health", (req, res) => res.json({ status: "ok", time: new Date().toISOString() }));
+app.head("/", (req, res) => {
+  res.status(200).end(); // no body
+});
 
 app.listen(5000, () => {
   console.log("WorkFlow Agent Server running on port 5000");
