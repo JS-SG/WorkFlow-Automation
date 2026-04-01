@@ -289,6 +289,24 @@ async function runWorkflow(executionId) {
             data,
           });
 
+          // 🔥 ADD THIS BLOCK (VERY IMPORTANT)
+          const initiatorExec = await dbGet(
+            `SELECT triggered_by FROM executions WHERE id=?`,
+            [executionId]
+          );
+
+          createNotification({
+            executionId,
+            workflowId: execution.workflow_id,
+            workflowName,
+            stepId: step.id,
+            stepName: step.name,
+            stepType: step.step_type,
+            eventType: "WORKFLOW_FAILED", // ✅ THIS FIXES UI
+            message: `❌ Workflow "${workflowName}" rejected by ${stepApproval.approver_id}`,
+            recipientEmail: initiatorExec ? initiatorExec.triggered_by : "",
+          });
+
           return;
 
         } else {
