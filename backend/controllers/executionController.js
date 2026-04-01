@@ -31,6 +31,32 @@ function buildEffectiveChain(fullChain, initiatorRole) {
   return fullChain.slice(pos + 1);  // only roles AFTER the initiator
 }
 
+function formatApprovalMessage(data) {
+  const request = data._request_summary || {};
+  const approvals = data._approvals || [];
+
+  const requestText = Object.entries(request)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n");
+
+  const approvalText = approvals.length > 0
+    ? approvals.map(a =>
+        `${a.approver_id} → ${a.action.toUpperCase()} (${a.comments || "No comments"})`
+      ).join("\n")
+    : "No previous approvals";
+
+  return `
+📌 New Approval Request
+
+📝 Request Details:
+${requestText}
+
+🧾 Previous Decisions:
+${approvalText}
+`;
+}
+
+
 async function findFirstRelevantStep(steps, initiatorRole) {
   const row = await dbGet(
     `SELECT chain FROM approval_chains WHERE initiator_role='employee'`,
@@ -96,6 +122,8 @@ exports.startExecution = async (req, res) => {
 
       const executionData = {
         ...inputData,
+        _request_summary: inputData,   // 🔥 store clean request data
+        _approvals: [],     
         _dynamic_chain: effectiveChain,
         _full_chain: fullChain,
         _initiator_role: userRole,
@@ -143,6 +171,8 @@ exports.startExecution = async (req, res) => {
 
     const executionData = {
       ...inputData,
+      _request_summary: inputData,   // 🔥 store clean request data
+      _approvals: [],     
       _initiator_role: userRole,
       initiator_department: userDept,
       _skipped_to_step: firstRelevantStep ? firstRelevantStep.id : null,
@@ -490,15 +520,15 @@ exports.approveExecution = async (req, res) => {
  
     const resolvedApproverId = approver_id || req.headers["x-user-email"] || "unknown";
     const data = JSON.parse(execution.data || "{}");
-    const approvals = data._approvals || {};
- 
-    approvals[step_id] = {
+    if (!data._approvals) data._approvals = [];
+    data._approvals.push({
+      step_id,
+      step_name: execution.current_step_id,
       action,
       approver_id: resolvedApproverId,
       comments: comments || "",
       timestamp: new Date().toISOString(),
-    };
-    data._approvals = approvals;
+    });
  
     const logs = JSON.parse(execution.logs || "[]");
     logs.push({
@@ -708,7 +738,7 @@ exports.approveExecution = async (req, res) => {
             await createNotification({
               execution_id: id,
               user_role: nextRole,
-              message: `New approval request: ${nextRole.replace(/_/g, " ").toUpperCase()}`,
+              message: formatApprovalMessage(data),
               type: "approval_required"
             });
           } else {
@@ -718,7 +748,7 @@ exports.approveExecution = async (req, res) => {
               await createNotification({
                 execution_id: id,
                 user_email: meta.assignee_email,
-                message: `New approval request: ${nextStep.name}`,
+                message: formatApprovalMessage(data),
                 type: "approval_required"
               });
             }
